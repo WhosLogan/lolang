@@ -28,6 +28,7 @@ const (
 
 	// Stack Control
 	Ldc8
+	Ldarg
 	Pop
 
 	// Misc
