@@ -1,6 +1,7 @@
 package function
 
 import (
+	"shared/pkg/data"
 	"shared/pkg/opcodes"
 	"shared/pkg/types"
 )
@@ -11,6 +12,13 @@ type Function struct {
 	Locals       []Local
 	Arguments    []Argument
 	ReturnType   types.Type
+}
+
+type Ctx struct {
+	Function  *Function
+	Stack     data.Stack[data.Value]
+	Locals    []data.Value
+	Arguments []data.Value
 }
 
 type Instruction struct {
