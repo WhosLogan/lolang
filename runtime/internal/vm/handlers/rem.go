@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var rem = Handler(func(ctx function.Ctx) {
+var rem = Handler(func(ctx vm.FunctionCtx) {
 	var first = ctx.Stack.Pop()
 	var second = ctx.Stack.Pop()
 

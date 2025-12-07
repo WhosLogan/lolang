@@ -1,8 +1,10 @@
 package handlers
 
-import "runtime/internal/vm/function"
+import (
+	"runtime/internal/vm"
+)
 
-var ldarg = Handler(func(ctx function.Ctx) {
+var ldarg = Handler(func(ctx vm.FunctionCtx) {
 	idxOp := ctx.Function.Instructions[ctx.InstrPtr].Operand
 	idx := idxOp.GetInt()
 

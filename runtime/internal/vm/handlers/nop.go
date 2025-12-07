@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 )
 
-var nop = Handler(func(ctx function.Ctx) {
+var nop = Handler(func(ctx vm.FunctionCtx) {
 	// Do nothing
 })

@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 )
 
-var pop = Handler(func(ctx function.Ctx) {
+var pop = Handler(func(ctx vm.FunctionCtx) {
 	ctx.Stack.Pop()
 })

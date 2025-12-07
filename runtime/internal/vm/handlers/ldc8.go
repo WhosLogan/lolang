@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 )
 
-var ldc8 = Handler(func(ctx function.Ctx) {
+var ldc8 = Handler(func(ctx vm.FunctionCtx) {
 	value := ctx.Function.Instructions[ctx.InstrPtr].Operand
 	ctx.Stack.Push(value)
 })

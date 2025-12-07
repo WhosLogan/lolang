@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 	"shared/pkg/opcodes"
 )
 
-type Handler func(ctx function.Ctx)
+type Handler func(ctx vm.FunctionCtx)
 
 var Handlers = map[opcodes.OpCode]Handler{
 	// Arithmetic instructions

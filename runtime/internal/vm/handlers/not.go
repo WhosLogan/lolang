@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"errors"
-	"runtime/internal/vm/function"
+	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var not = Handler(func(ctx function.Ctx) {
+var not = Handler(func(ctx vm.FunctionCtx) {
 	var num = ctx.Stack.Pop()
 
 	if num.Type == types.LoInt {
