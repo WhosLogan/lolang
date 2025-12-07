@@ -19,3 +19,7 @@ func (st *Stack[T]) Push(v T) {
 func (st *Stack[T]) Empty() bool {
 	return len(*st) == 0
 }
+
+func (st *Stack[T]) Peek() T {
+	return (*st)[len(*st)-1]
+}
