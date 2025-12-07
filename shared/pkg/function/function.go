@@ -1,6 +1,7 @@
 package function
 
 import (
+	"shared/pkg/data"
 	"shared/pkg/opcodes"
 	"shared/pkg/types"
 )
@@ -15,7 +16,7 @@ type Function struct {
 
 type Instruction struct {
 	OpCode  opcodes.OpCode
-	Operand any
+	Operand data.Value
 }
 
 type Argument struct {
