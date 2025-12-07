@@ -2,9 +2,9 @@ package opcodes
 
 type OpCode int
 
+// Arithmetic operations
 const (
-	// Arithmetic Operations
-	Add OpCode = iota
+	Add OpCode = iota + 100
 	Sub
 	Mul
 	Div
@@ -13,25 +13,33 @@ const (
 	Not
 	Or
 	Neg
+)
 
-	// Branch Operations
-	Br
+// Branch Operations
+const (
+	Br OpCode = iota + 200
 	Be
 	Bne
 	Blt
 	Bgt
+)
 
-	// Equality
-	Cmp
+// Equality
+const (
+	Cmp OpCode = iota + 300
 	Clt
 	Cgt
+)
 
-	// Stack Control
-	Ldc8
+// Stack Control
+const (
+	Ldc8 OpCode = iota + 400
 	Ldarg
 	Pop
+)
 
-	// Misc
-	Nop
+// Misc
+const (
+	Nop OpCode = iota + 500
 	Ret
 )
