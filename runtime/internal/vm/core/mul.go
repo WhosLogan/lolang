@@ -1,13 +1,12 @@
-package handlers
+package core
 
 import (
 	"errors"
-	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var mul = Handler(func(ctx vm.FunctionCtx) {
+var mul = Handler(func(ctx *FunctionCtx) {
 	var first = ctx.Stack.Pop()
 	var second = ctx.Stack.Pop()
 

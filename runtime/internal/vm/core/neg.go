@@ -1,13 +1,12 @@
-package handlers
+package core
 
 import (
 	"errors"
-	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var neg = Handler(func(ctx vm.FunctionCtx) {
+var neg = Handler(func(ctx *FunctionCtx) {
 	var num = ctx.Stack.Pop()
 
 	if num.Type == types.LoInt {

@@ -1,11 +1,10 @@
-package handlers
+package core
 
 import (
-	"runtime/internal/vm"
 	"shared/pkg/types"
 )
 
-var ret = Handler(func(ctx vm.FunctionCtx) {
+var ret = Handler(func(ctx *FunctionCtx) {
 	if ctx.Vm.CallStack.Len() == 0 {
 		return
 	}

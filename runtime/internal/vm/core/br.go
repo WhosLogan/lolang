@@ -1,8 +1,6 @@
-package handlers
+package core
 
-import "runtime/internal/vm"
-
-var br = Handler(func(ctx vm.FunctionCtx) {
+var br = Handler(func(ctx *FunctionCtx) {
 	instr := ctx.Function.Instructions[ctx.InstrPtr]
 	token := instr.Operand.GetInt()
 

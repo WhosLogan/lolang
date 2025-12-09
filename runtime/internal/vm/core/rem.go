@@ -1,23 +1,22 @@
-package handlers
+package core
 
 import (
 	"errors"
-	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var add = Handler(func(ctx vm.FunctionCtx) {
+var rem = Handler(func(ctx *FunctionCtx) {
 	var first = ctx.Stack.Pop()
 	var second = ctx.Stack.Pop()
 
 	if first.Type == types.LoInt && second.Type == types.LoInt {
-		v, err := data.NewValue(first.GetInt() + second.GetInt())
+		v, err := data.NewValue(first.GetInt() % second.GetInt())
 		if err != nil {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
 	}
 
-	ctx.Vm.Error(errors.New("unable to add specified type pattern"))
+	ctx.Vm.Error(errors.New("unable to get the remainder for the specified type pattern"))
 })

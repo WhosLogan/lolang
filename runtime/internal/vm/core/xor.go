@@ -1,23 +1,22 @@
-package handlers
+package core
 
 import (
 	"errors"
-	"runtime/internal/vm"
 	"shared/pkg/data"
 	"shared/pkg/types"
 )
 
-var div = Handler(func(ctx vm.FunctionCtx) {
+var xor = Handler(func(ctx *FunctionCtx) {
 	var first = ctx.Stack.Pop()
 	var second = ctx.Stack.Pop()
 
 	if first.Type == types.LoInt && second.Type == types.LoInt {
-		v, err := data.NewValue(first.GetInt() / second.GetInt())
+		v, err := data.NewValue(first.GetInt() ^ second.GetInt())
 		if err != nil {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
 	}
 
-	ctx.Vm.Error(errors.New("unable to divide specified type pattern"))
+	ctx.Vm.Error(errors.New("unable to xor the specified type pattern"))
 })

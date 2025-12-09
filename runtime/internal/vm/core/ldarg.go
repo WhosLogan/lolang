@@ -1,10 +1,6 @@
-package handlers
+package core
 
-import (
-	"runtime/internal/vm"
-)
-
-var ldarg = Handler(func(ctx vm.FunctionCtx) {
+var ldarg = Handler(func(ctx *FunctionCtx) {
 	idxOp := ctx.Function.Instructions[ctx.InstrPtr].Operand
 	idx := idxOp.GetInt()
 

@@ -1,11 +1,10 @@
-package handlers
+package core
 
 import (
-	"runtime/internal/vm"
 	"shared/pkg/data"
 )
 
-var cmp = Handler(func(ctx vm.FunctionCtx) {
+var cmp = Handler(func(ctx *FunctionCtx) {
 	v1 := ctx.Stack.Pop()
 	v2 := ctx.Stack.Pop()
 

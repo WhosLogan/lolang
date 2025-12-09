@@ -1,12 +1,10 @@
-package handlers
+package core
 
-import "runtime/internal/vm"
-
-var bne = Handler(func(ctx vm.FunctionCtx) {
+var bgt = Handler(func(ctx *FunctionCtx) {
 	v1 := ctx.Stack.Pop()
 	v2 := ctx.Stack.Pop()
 
-	if v1.Equal(&v2) {
+	if v1.GetInt() <= v2.GetInt() {
 		return
 	}
 
