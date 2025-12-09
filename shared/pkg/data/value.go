@@ -1,6 +1,7 @@
 package data
 
 import (
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"shared/pkg/types"
@@ -41,4 +42,12 @@ func (v *Value) GetInt() int64 {
 
 func (v *Value) GetBool() bool {
 	return v.Data[0] == 1
+}
+
+func (v *Value) Equal(other *Value) bool {
+	if v.Type != other.Type || len(v.Data) != len(other.Data) {
+		return false
+	}
+
+	return bytes.Equal(v.Data, other.Data)
 }
