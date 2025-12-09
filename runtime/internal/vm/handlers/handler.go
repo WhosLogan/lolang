@@ -19,6 +19,13 @@ var Handlers = map[opcodes.OpCode]Handler{
 	opcodes.Or:  or,
 	opcodes.Neg: neg,
 
+	// Branch operations
+	opcodes.Br:  br,
+	opcodes.Be:  be,
+	opcodes.Bne: bne,
+	opcodes.Bgt: bgt,
+	opcodes.Blt: blt,
+
 	// Stack control
 	opcodes.Ldc8:  ldc8,
 	opcodes.Ldarg: ldarg,
