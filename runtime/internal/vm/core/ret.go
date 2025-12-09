@@ -5,6 +5,8 @@ import (
 )
 
 var ret = Handler(func(ctx *FunctionCtx) {
+	ctx.Running = false
+
 	if ctx.Vm.CallStack.Len() == 0 {
 		return
 	}

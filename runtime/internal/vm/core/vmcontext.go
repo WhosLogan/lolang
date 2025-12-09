@@ -3,6 +3,7 @@ package core
 import (
 	"shared/pkg/data"
 	"shared/pkg/function"
+	"shared/pkg/vm"
 )
 
 type VCtx struct {
@@ -19,6 +20,17 @@ type FunctionCtx struct {
 	Locals    map[int]data.Value
 	Arguments []data.Value
 	Running   bool
+}
+
+func NewVmCtx(vm *vm.Vm) *VCtx {
+	ctx := &VCtx{
+		Functions: vm.Functions,
+	}
+
+	ep := ctx.Functions[vm.EntryPoint]
+	ctx.EntryPoint = &ep
+
+	return ctx
 }
 
 // Error halts the virtual machine and kills the running application
@@ -51,6 +63,8 @@ func NewFunctionCtx(vm *VCtx, fn *function.Function) *FunctionCtx {
 }
 
 func (fn *FunctionCtx) Execute() {
+	fn.Running = true
+
 	for fn.Running {
 		ptr := fn.InstrPtr
 
