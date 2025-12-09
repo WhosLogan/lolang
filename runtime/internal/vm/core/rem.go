@@ -16,6 +16,7 @@ var rem = Handler(func(ctx *FunctionCtx) {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
+		return
 	}
 
 	ctx.Vm.Error(errors.New("unable to get the remainder for the specified type pattern"))

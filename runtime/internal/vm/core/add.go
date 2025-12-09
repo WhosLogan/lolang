@@ -16,6 +16,7 @@ var add = Handler(func(ctx *FunctionCtx) {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
+		return
 	}
 
 	ctx.Vm.Error(errors.New("unable to add specified type pattern"))

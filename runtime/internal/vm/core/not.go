@@ -15,12 +15,14 @@ var not = Handler(func(ctx *FunctionCtx) {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
+		return
 	} else if num.Type == types.LoBool {
 		v, err := data.NewValue(!num.GetBool())
 		if err != nil {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
+		return
 	}
 
 	ctx.Vm.Error(errors.New("unable to not the specified type"))

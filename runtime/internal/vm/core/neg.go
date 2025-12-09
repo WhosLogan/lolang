@@ -15,6 +15,7 @@ var neg = Handler(func(ctx *FunctionCtx) {
 			ctx.Vm.Error(err)
 		}
 		ctx.Stack.Push(v)
+		return
 	}
 
 	ctx.Vm.Error(errors.New("unable to negate the specified type"))
