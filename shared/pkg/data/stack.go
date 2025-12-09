@@ -1,6 +1,6 @@
 package data
 
-type Stack[T any] []any
+type Stack[T any] []T
 
 func (st *Stack[T]) Len() int {
 	return len(*st)
