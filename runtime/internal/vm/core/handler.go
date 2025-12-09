@@ -42,3 +42,8 @@ var Handlers = map[opcodes.OpCode]Handler{
 	opcodes.Nop: nop,
 	opcodes.Ret: ret,
 }
+
+// Avoid cyclic dependency
+func init() {
+	Handlers[opcodes.Call] = call
+}

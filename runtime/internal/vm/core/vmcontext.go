@@ -39,11 +39,11 @@ func (vm *VCtx) Error(err error) {
 }
 
 func (vm *VCtx) Execute() {
-	ctx := NewFunctionCtx(vm, vm.EntryPoint)
+	ctx := newFunctionCtx(vm, vm.EntryPoint)
 	ctx.Execute()
 }
 
-func NewFunctionCtx(vm *VCtx, fn *function.Function) *FunctionCtx {
+func newFunctionCtx(vm *VCtx, fn *function.Function) *FunctionCtx {
 	var locals map[int]data.Value
 	for _, local := range fn.Locals {
 		if !local.HasInitialValue {

@@ -45,4 +45,5 @@ const (
 const (
 	Nop OpCode = iota + 500
 	Ret
+	Call
 )
