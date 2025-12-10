@@ -48,6 +48,10 @@ func (v *Value) GetBool() bool {
 	return v.Data[0] == 1
 }
 
+func (v *Value) GetString() string {
+	return string(v.Data)
+}
+
 func (v *Value) Equal(other *Value) bool {
 	if v.Type != other.Type || len(v.Data) != len(other.Data) {
 		return false
