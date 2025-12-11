@@ -1,5 +1,6 @@
 package opcodes
 
+//go:generate stringer -type=OpCode
 type OpCode int
 
 // Arithmetic operations
