@@ -35,6 +35,11 @@ func NewValue(v any) (Value, error) {
 			Type: types.LoBool,
 			Data: data,
 		}, nil
+	case string:
+		return Value{
+			Type: types.LoString,
+			Data: []byte(x),
+		}, nil
 	}
 
 	return Value{}, errors.New("invalid value type")
