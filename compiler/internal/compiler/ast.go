@@ -1,7 +1,18 @@
 package compiler
 
 type Program struct {
-	Functions []*Function `@@*`
+	Structs   []*StructDef `@@*`
+	Functions []*Function  `@@*`
+}
+
+type StructDef struct {
+	Name   string         `"struct" @Ident`
+	Fields []*StructField `"{" @@* "}"`
+}
+
+type StructField struct {
+	Type string `( @Type | @Ident )`
+	Name string `@Ident ";"`
 }
 
 type Function struct {
@@ -13,7 +24,7 @@ type Function struct {
 }
 
 type Param struct {
-	Type string `@Type`
+	Type string `( @Type | @Ident )`
 	Name string `@Ident`
 }
 
@@ -46,7 +57,7 @@ type ForInit struct {
 }
 
 type VarDecl struct {
-	Type string `@Type`
+	Type string `( @Type | @Ident )`
 	Name string `@Ident`
 	Init *Expr  `[ "=" @@ ]`
 }
@@ -63,9 +74,10 @@ type Expr struct {
 }
 
 type AssignExpr struct {
-	Left  string      `@Ident`
-	Op    string      `"="`
-	Right *SimpleExpr `@@`
+	Left   string       `@Ident`
+	Fields *FieldAccess `[ @@ ]`
+	Op     string       `"="`
+	Right  *SimpleExpr  `@@`
 }
 
 type SimpleExpr struct {
@@ -95,16 +107,34 @@ type Primary struct {
                         |`
 	String *string `@String
                         |`
+	New *NewExpr `@@
+                        |`
 	Ident *IdentExpr `@@
                         |`
 	Sub *Expr `"(" @@ ")"`
 }
 
+type NewExpr struct {
+	TypeName string       `"new" @Ident`
+	Fields   []*FieldInit `"{" ( @@ ( "," @@ )* )? "}"`
+}
+
+type FieldInit struct {
+	Name  string `@Ident ":"`
+	Value *Expr  `@@`
+}
+
 type IdentExpr struct {
-	Name string    `@Ident`
-	Call *CallExpr `[ @@ ]`
+	Name   string       `@Ident`
+	Access *FieldAccess `[ @@ ]`
+	Call   *CallExpr    `[ @@ ]`
 }
 
 type CallExpr struct {
 	Args []*Expr `"(" ( @@ ( "," @@ )* )? ")"`
+}
+
+type FieldAccess struct {
+	Field string       `"." @Ident`
+	Next  *FieldAccess `[ @@ ]`
 }

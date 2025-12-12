@@ -38,6 +38,9 @@ func _() {
 	_ = x[Nop-500]
 	_ = x[Ret-501]
 	_ = x[Call-502]
+	_ = x[NewObj-600]
+	_ = x[LdFld-601]
+	_ = x[StFld-602]
 }
 
 const (
@@ -46,6 +49,7 @@ const (
 	_OpCode_name_2 = "CmpCltCgtCleCge"
 	_OpCode_name_3 = "Ldc8PopDupLdLocStLocLdStr"
 	_OpCode_name_4 = "NopRetCall"
+	_OpCode_name_5 = "NewObjLdFldStFld"
 )
 
 var (
@@ -54,6 +58,7 @@ var (
 	_OpCode_index_2 = [...]uint8{0, 3, 6, 9, 12, 15}
 	_OpCode_index_3 = [...]uint8{0, 4, 7, 10, 15, 20, 25}
 	_OpCode_index_4 = [...]uint8{0, 3, 6, 10}
+	_OpCode_index_5 = [...]uint8{0, 6, 11, 16}
 )
 
 func (i OpCode) String() string {
@@ -73,6 +78,9 @@ func (i OpCode) String() string {
 	case 500 <= i && i <= 502:
 		i -= 500
 		return _OpCode_name_4[_OpCode_index_4[i]:_OpCode_index_4[i+1]]
+	case 600 <= i && i <= 602:
+		i -= 600
+		return _OpCode_name_5[_OpCode_index_5[i]:_OpCode_index_5[i+1]]
 	default:
 		return "OpCode(" + strconv.FormatInt(int64(i), 10) + ")"
 	}

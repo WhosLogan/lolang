@@ -8,7 +8,7 @@ var parser = participle.MustBuild[Program](
 	participle.Lexer(LoLexer),
 	participle.Elide("Whitespace", "Comment"),
 	participle.Unquote("String"),
-	participle.UseLookahead(2),
+	participle.UseLookahead(5),
 )
 
 func ParseString(src string) (*Program, error) {

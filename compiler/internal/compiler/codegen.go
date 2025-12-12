@@ -16,6 +16,7 @@ type codegen struct {
 	curFunc  *Function
 	curVmFn  *function.Function
 	nextSlot int
+	structs  map[string]*StructDef
 }
 
 func (gen *codegen) compileFunction() error {
@@ -185,19 +186,57 @@ func (gen *codegen) getLocalByName(name string) *function.Local {
 func (gen *codegen) compileExpr(e *Expr) error {
 	if e.Assign != nil {
 		a := e.Assign
-		if err := gen.compileSimpleExpr(a.Right); err != nil {
-			return err
-		}
 
 		local := gen.getLocalByName(a.Left)
 		if local == nil {
 			return fmt.Errorf("unknown local %q in assignment", a.Left)
 		}
 
+		if a.Fields != nil {
+			gen.emit(opcodes.LdLoc, data.MustNewValue(local.Index))
+			if err := gen.compileFieldAssignment(local.Type.Name, a.Fields, a.Right); err != nil {
+				return err
+			}
+			gen.emit(opcodes.StLoc, data.MustNewValue(local.Index))
+			return nil
+		}
+
+		if err := gen.compileSimpleExpr(a.Right); err != nil {
+			return err
+		}
+
 		gen.emit(opcodes.StLoc, data.MustNewValue(local.Index))
 		return nil
 	}
 	return gen.compileSimpleExpr(e.Simple)
+}
+
+func (gen *codegen) compileFieldAssignment(structTypeName string, access *FieldAccess, right *SimpleExpr) error {
+	fieldIdx := gen.getFieldIndex(structTypeName, access.Field)
+	if fieldIdx < 0 {
+		return fmt.Errorf("unknown field %q in struct %s", access.Field, structTypeName)
+	}
+
+	if access.Next != nil {
+		gen.emit(opcodes.LdFld, data.MustNewValue(fieldIdx))
+
+		st := gen.structs[structTypeName]
+		var nextTypeName string
+		for _, f := range st.Fields {
+			if f.Name == access.Field {
+				nextTypeName = f.Type
+				break
+			}
+		}
+		return gen.compileFieldAssignment(nextTypeName, access.Next, right)
+	}
+
+	if err := gen.compileSimpleExpr(right); err != nil {
+		return err
+	}
+
+	gen.emit(opcodes.StFld, data.MustNewValue(fieldIdx))
+	return nil
 }
 
 func (gen *codegen) compileSimpleExpr(e *SimpleExpr) error {
@@ -283,6 +322,9 @@ func (gen *codegen) compilePrimary(p *Primary) error {
 		gen.emit(opcodes.LdStr, data.MustNewValue(*p.String))
 		return nil
 
+	case p.New != nil:
+		return gen.compileNewExpr(p.New)
+
 	case p.Ident != nil:
 		return gen.compileIdentExpr(p.Ident)
 
@@ -291,6 +333,45 @@ func (gen *codegen) compilePrimary(p *Primary) error {
 	}
 
 	return fmt.Errorf("invalid primary")
+}
+
+func (gen *codegen) compileNewExpr(n *NewExpr) error {
+	structType := types.GetTypeByName(n.TypeName)
+	if structType == nil {
+		return fmt.Errorf("unknown struct type %q", n.TypeName)
+	}
+
+	gen.emit(opcodes.NewObj, data.MustNewValue(int(structType.Code)))
+
+	for _, f := range n.Fields {
+		if err := gen.compileExpr(f.Value); err != nil {
+			return err
+		}
+
+		fieldIdx := gen.getFieldIndex(n.TypeName, f.Name)
+		if fieldIdx < 0 {
+			return fmt.Errorf("unknown field %q in struct %s", f.Name, n.TypeName)
+		}
+
+		gen.emit(opcodes.StFld, data.MustNewValue(fieldIdx))
+	}
+
+	return nil
+}
+
+func (gen *codegen) getFieldIndex(structName, fieldName string) int {
+	st, ok := gen.structs[structName]
+	if !ok {
+		return -1
+	}
+
+	for i, f := range st.Fields {
+		if f.Name == fieldName {
+			return i
+		}
+	}
+
+	return -1
 }
 
 func (gen *codegen) compileIdentExpr(id *IdentExpr) error {
@@ -304,6 +385,37 @@ func (gen *codegen) compileIdentExpr(id *IdentExpr) error {
 	}
 
 	gen.emit(opcodes.LdLoc, data.MustNewValue(local.Index))
+
+	if id.Access != nil {
+		return gen.compileFieldAccess(local.Type.Name, id.Access)
+	}
+
+	return nil
+}
+
+func (gen *codegen) compileFieldAccess(structTypeName string, access *FieldAccess) error {
+	fieldIdx := gen.getFieldIndex(structTypeName, access.Field)
+	if fieldIdx < 0 {
+		return fmt.Errorf("unknown field %q in struct %s", access.Field, structTypeName)
+	}
+
+	gen.emit(opcodes.LdFld, data.MustNewValue(fieldIdx))
+
+	if access.Next != nil {
+		st := gen.structs[structTypeName]
+		if st == nil {
+			return fmt.Errorf("unknown struct %q", structTypeName)
+		}
+		var nextTypeName string
+		for _, f := range st.Fields {
+			if f.Name == access.Field {
+				nextTypeName = f.Type
+				break
+			}
+		}
+		return gen.compileFieldAccess(nextTypeName, access.Next)
+	}
+
 	return nil
 }
 

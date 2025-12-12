@@ -43,7 +43,49 @@ lo main() {
 
 ```
 
-Which compiles to:
+## Custom Types (Structs)
+
+Lolang supports user-defined struct types. Here's an example:
+
+```lolang
+struct Point {
+    int x;
+    int y;
+}
+
+struct Rectangle {
+    Point topLeft;
+    Point bottomRight;
+}
+
+lo main() {
+    Point p = new Point { x: 10, y: 20 };
+    printInt(p.x);
+    printInt(p.y);
+    
+    p.x = 30;
+    printInt(p.x);
+    
+    return;
+}
+```
+
+### Struct Features
+- **Definition**: Use `struct Name { ... }` to define a new type with fields
+- **Instantiation**: Use `new StructName { field: value, ... }` to create instances
+- **Field Access**: Use dot notation `instance.field` to read fields
+- **Field Assignment**: Use `instance.field = value` to update fields
+- **Nested Structs**: Structs can contain other structs as fields (e.g., `rect.topLeft.x`)
+- **Type Checking**: Full type checking for struct fields and assignments
+
+### New Struct Opcodes
+- `NewObj` - Creates a new struct instance of the specified type
+- `LdFld` - Loads a field value from a struct onto the stack
+- `StFld` - Stores a value from the stack into a struct field
+
+## Compiled Output Example
+
+The first example (printTimes) compiles to:
 ```
 Fn #1000000: main
 Instr #0: Opcode: LdStr Operand: looping...
@@ -80,7 +122,7 @@ well-built out.
 I'm sure I'll eventually get bored and come back to work on this project, so here's a quick list of things I 
 should improve on:
 
-- [ ] Add custom types that can be defined by the user
+- [x] Add custom types that can be defined by the user
 - [ ] More primitive types
 - [ ] More robust testing suite
 - [ ] Some sort of error handling (probably done similarly to go with tuples)

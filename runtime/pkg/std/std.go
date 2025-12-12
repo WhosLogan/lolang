@@ -16,4 +16,5 @@ type stdFunc struct {
 var StdLib = map[int]stdFunc{
 	0: printFunc,
 	1: printLnFunc,
+	2: printIntFunc,
 }
