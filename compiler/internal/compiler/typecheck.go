@@ -22,9 +22,15 @@ type funcType struct {
 	Return string
 }
 
+type structType struct {
+	Name   string
+	Fields map[string]string
+}
+
 type checker struct {
 	funcs         map[string]funcType
 	stdlib        map[string]funcType
+	structs       map[string]structType
 	scopes        []map[string]string
 	currentReturn string
 }
@@ -57,8 +63,60 @@ func defaultStdLib() map[string]funcType {
 
 func CheckProgram(prog *Program) error {
 	c := &checker{
-		funcs:  make(map[string]funcType),
-		stdlib: defaultStdLib(),
+		funcs:   make(map[string]funcType),
+		stdlib:  defaultStdLib(),
+		structs: make(map[string]structType),
+	}
+
+	for _, st := range prog.Structs {
+		if _, exists := c.structs[st.Name]; exists {
+			return fmt.Errorf("duplicate struct %q", st.Name)
+		}
+
+		fields := make(map[string]string)
+		for _, f := range st.Fields {
+			if _, exists := fields[f.Name]; exists {
+				return fmt.Errorf("struct %s: duplicate field %q", st.Name, f.Name)
+			}
+			fields[f.Name] = f.Type
+		}
+
+		c.structs[st.Name] = structType{
+			Name:   st.Name,
+			Fields: fields,
+		}
+	}
+
+	for _, st := range prog.Structs {
+		if types.GetTypeByName(st.Name) == nil {
+			types.RegisterStructType(st.Name, nil)
+		}
+	}
+
+	for _, st := range prog.Structs {
+		var typeFields []types.StructField
+		for _, f := range st.Fields {
+			fieldType := types.GetTypeByName(f.Type)
+			if fieldType == nil {
+				return fmt.Errorf("struct %s: unknown field type %q", st.Name, f.Type)
+			}
+			typeFields = append(typeFields, types.StructField{
+				Name: f.Name,
+				Type: fieldType.Code,
+			})
+		}
+		registeredType := types.GetTypeByName(st.Name)
+		if registeredType != nil {
+			registeredType.Fields = typeFields
+		}
+	}
+
+	for _, st := range prog.Structs {
+		for _, f := range st.Fields {
+			if !isValidType(f.Type) {
+				return fmt.Errorf("struct %s: unknown field type %q", st.Name, f.Type)
+			}
+		}
 	}
 
 	for _, fn := range prog.Functions {
@@ -264,6 +322,18 @@ func (c *checker) exprType(e *Expr) (string, error) {
 		if !ok {
 			return "", fmt.Errorf("assignment to undeclared variable %q", a.Left)
 		}
+
+		if a.Fields != nil {
+			fieldType, err := c.fieldAccessType(leftType, a.Fields)
+			if err != nil {
+				return "", err
+			}
+			if fieldType != rightType {
+				return "", fmt.Errorf("cannot assign %s to field of type %s", rightType, fieldType)
+			}
+			return fieldType, nil
+		}
+
 		if leftType != rightType {
 			return "", fmt.Errorf("cannot assign %s to %s of type %s", rightType, a.Left, leftType)
 		}
@@ -337,6 +407,8 @@ func (c *checker) primaryType(p *Primary) (string, error) {
 		return "int", nil
 	case p.String != nil:
 		return "string", nil
+	case p.New != nil:
+		return c.newExprType(p.New)
 	case p.Ident != nil:
 		return c.identType(p.Ident)
 	case p.Sub != nil:
@@ -344,6 +416,34 @@ func (c *checker) primaryType(p *Primary) (string, error) {
 	default:
 		return "", fmt.Errorf("invalid expression")
 	}
+}
+
+func (c *checker) newExprType(n *NewExpr) (string, error) {
+	st, ok := c.structs[n.TypeName]
+	if !ok {
+		return "", fmt.Errorf("unknown struct type %q", n.TypeName)
+	}
+
+	providedFields := make(map[string]bool)
+	for _, f := range n.Fields {
+		if _, exists := st.Fields[f.Name]; !exists {
+			return "", fmt.Errorf("struct %s has no field %q", n.TypeName, f.Name)
+		}
+		if providedFields[f.Name] {
+			return "", fmt.Errorf("duplicate field %q in struct initializer", f.Name)
+		}
+		providedFields[f.Name] = true
+
+		valType, err := c.exprType(f.Value)
+		if err != nil {
+			return "", err
+		}
+		if valType != st.Fields[f.Name] {
+			return "", fmt.Errorf("field %s: expected %s, got %s", f.Name, st.Fields[f.Name], valType)
+		}
+	}
+
+	return n.TypeName, nil
 }
 
 func (c *checker) identType(id *IdentExpr) (string, error) {
@@ -361,7 +461,30 @@ func (c *checker) identType(id *IdentExpr) (string, error) {
 	if !ok {
 		return "", fmt.Errorf("use of undeclared variable %q", id.Name)
 	}
+
+	if id.Access != nil {
+		return c.fieldAccessType(t, id.Access)
+	}
+
 	return t, nil
+}
+
+func (c *checker) fieldAccessType(baseType string, access *FieldAccess) (string, error) {
+	st, ok := c.structs[baseType]
+	if !ok {
+		return "", fmt.Errorf("cannot access field on non-struct type %q", baseType)
+	}
+
+	fieldType, ok := st.Fields[access.Field]
+	if !ok {
+		return "", fmt.Errorf("struct %s has no field %q", baseType, access.Field)
+	}
+
+	if access.Next != nil {
+		return c.fieldAccessType(fieldType, access.Next)
+	}
+
+	return fieldType, nil
 }
 
 func (c *checker) checkCall(name string, fnType funcType, args []*Expr) (string, error) {

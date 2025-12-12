@@ -52,3 +52,10 @@ const (
 	Ret
 	Call
 )
+
+// Struct operations
+const (
+	NewObj OpCode = iota + 600
+	LdFld
+	StFld
+)

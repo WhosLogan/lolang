@@ -5,6 +5,7 @@ const (
 	LoVoid
 	LoString
 	LoBool
+	LoStructStart = TypeCode(10000)
 )
 
 var Types = []Type{
@@ -29,10 +30,24 @@ var Types = []Type{
 	},
 }
 
+var nextStructCode = LoStructStart
+
+func RegisterStructType(name string, fields []StructField) *Type {
+	t := Type{
+		Name:     name,
+		Code:     nextStructCode,
+		IsStruct: true,
+		Fields:   fields,
+	}
+	nextStructCode++
+	Types = append(Types, t)
+	return &Types[len(Types)-1]
+}
+
 func GetTypeByName(name string) *Type {
-	for _, t := range Types {
-		if t.Name == name {
-			return &t
+	for i := range Types {
+		if Types[i].Name == name {
+			return &Types[i]
 		}
 	}
 
@@ -40,11 +55,22 @@ func GetTypeByName(name string) *Type {
 }
 
 func GetTypeByCode(code TypeCode) *Type {
-	for _, t := range Types {
-		if t.Code == code {
-			return &t
+	for i := range Types {
+		if Types[i].Code == code {
+			return &Types[i]
 		}
 	}
 
 	return nil
+}
+
+func ResetStructTypes() {
+	newTypes := make([]Type, 0)
+	for _, t := range Types {
+		if !t.IsStruct {
+			newTypes = append(newTypes, t)
+		}
+	}
+	Types = newTypes
+	nextStructCode = LoStructStart
 }

@@ -31,11 +31,24 @@ func compileVm(prog *Program) *vm.Vm {
 	m := new(vm.Vm)
 	fnMap := initFunctions(prog, m)
 
+	structMap := make(map[string]*StructDef)
+	for _, st := range prog.Structs {
+		structMap[st.Name] = st
+	}
+
+	m.StructTypes = []types.Type{}
+	for _, t := range types.Types {
+		if t.IsStruct {
+			m.StructTypes = append(m.StructTypes, t)
+		}
+	}
+
 	for _, fn := range prog.Functions {
 		gen := &codegen{
 			vm:      m,
 			curFunc: fn,
 			curVmFn: fnMap[fn.Name],
+			structs: structMap,
 		}
 
 		err := gen.compileFunction()

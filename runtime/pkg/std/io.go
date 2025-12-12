@@ -44,3 +44,22 @@ var printLnFunc = stdFunc{
 	},
 	ReturnType: types.LoVoid,
 }
+
+var printIntFunc = stdFunc{
+	Name: "printInt",
+	Arguments: []function.Argument{
+		{
+			Index: 0,
+			Name:  "n",
+			Type:  types.LoInt,
+		},
+	},
+	Execute: func(values []data.Value) data.Value {
+		fmt.Println(values[0].GetInt())
+
+		return data.Value{
+			Type: types.LoVoid,
+		}
+	},
+	ReturnType: types.LoVoid,
+}

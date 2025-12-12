@@ -8,8 +8,9 @@ import (
 )
 
 type Value struct {
-	Type types.TypeCode
-	Data []byte
+	Type   types.TypeCode
+	Data   []byte
+	Fields map[string]Value
 }
 
 func NewValue(v any) (Value, error) {
@@ -43,6 +44,28 @@ func NewValue(v any) (Value, error) {
 	}
 
 	return Value{}, errors.New("invalid value type")
+}
+
+func NewStructValue(typeCode types.TypeCode) Value {
+	return Value{
+		Type:   typeCode,
+		Fields: make(map[string]Value),
+	}
+}
+
+func (v *Value) SetField(name string, val Value) {
+	if v.Fields == nil {
+		v.Fields = make(map[string]Value)
+	}
+	v.Fields[name] = val
+}
+
+func (v *Value) GetField(name string) (Value, bool) {
+	if v.Fields == nil {
+		return Value{}, false
+	}
+	val, ok := v.Fields[name]
+	return val, ok
 }
 
 func MustNewValue(v any) Value {

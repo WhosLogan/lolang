@@ -42,6 +42,11 @@ var handlers = map[opcodes.OpCode]handler{
 	opcodes.StLoc: stLoc,
 	opcodes.LdStr: ldStr,
 
+	// Struct operations
+	opcodes.NewObj: newObj,
+	opcodes.LdFld:  ldFld,
+	opcodes.StFld:  stFld,
+
 	// Misc
 	opcodes.Nop: nop,
 	opcodes.Ret: ret,
